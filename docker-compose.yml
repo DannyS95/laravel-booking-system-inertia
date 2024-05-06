@@ -1,0 +1,39 @@
+services:
+  booking-system:
+    build:
+      context: .
+    container_name: booking-system
+    image: booking-system
+    networks:
+      - app
+    depends_on:
+      - mysql
+    volumes:
+      - app:/app/
+    ports:
+      - 5173:5173
+      - 8080:8000
+
+  mysql:
+    image: mysql:8.3
+    container_name: db
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: 'booking-system'
+      MYSQL_ROOT_PASSWORD: '123'
+    ports:
+      - '3306:3306'
+    networks:
+      - app
+    tty: true
+
+volumes:
+  app:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./
+networks:
+  app:
