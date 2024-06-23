@@ -1,11 +1,11 @@
 <?php
 
-use App\Bookings\ScheduleAvailability;
+use Carbon\Carbon;
+use App\Models\Service;
 use App\Models\Employee;
 use App\Models\Schedule;
 use App\Models\ScheduleExclusion;
-use App\Models\Service;
-use Carbon\Carbon;
+use App\Feature\Employee\ScheduleAvailability;
 
 it('lists correct employee availability', function () {
     Carbon::setTestNow(Carbon::parse('1st January 2000'));

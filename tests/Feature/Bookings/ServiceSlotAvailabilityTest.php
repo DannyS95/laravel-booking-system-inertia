@@ -1,13 +1,13 @@
 <?php
 
-use App\Bookings\Date;
-use App\Bookings\ServiceSlotAvailability;
-use App\Bookings\Slot;
-use App\Models\Appointment;
+use Carbon\Carbon;
+use App\Models\Service;
 use App\Models\Employee;
 use App\Models\Schedule;
-use App\Models\Service;
-use Carbon\Carbon;
+use App\Models\Appointment;
+use App\Feature\Booking\Slot;
+use App\Feature\Booking\Slots;
+use App\Feature\Service\ServiceAvailability;
 
 it('shows available time slots for a service', function () {
     Carbon::setTestNow(Carbon::parse('1st January 2000'));
@@ -23,7 +23,7 @@ it('shows available time slots for a service', function () {
         'duration' => 30
     ]);
 
-    $availablity = (new ServiceSlotAvailability(collect([$employee]), $service))
+    $availablity = (new ServiceAvailability(collect([$employee]), $service))
         ->forPeriod(now()->startOfDay(), now()->endOfDay());
 
     expect($availablity->first()->date->toDateString())->toEqual(now()->toDateString());
@@ -44,7 +44,7 @@ it('lists multiple slots over multiple days', function () {
         'duration' => 30
     ]);
 
-    $availablity = (new ServiceSlotAvailability(collect([$employee]), $service))
+    $availablity = (new ServiceAvailability(collect([$employee]), $service))
         ->forPeriod(now()->startOfDay(), now()->addDay()->endOfDay());
 
     expect($availablity->map(fn ($date) => $date->date->toDateString()))
@@ -75,11 +75,11 @@ it('excludes booked appointments for the employee', function () {
         ]))
         ->create();
 
-    $availablity = (new ServiceSlotAvailability(collect([$employee]), $service))
+    $availablity = (new ServiceAvailability(collect([$employee]), $service))
         ->forPeriod(now()->startOfDay(), now()->endOfDay());
 
-    $slots = $availablity->map(function (Date $date) {
-        return $date->slots->map(fn (Slot $slot) => $slot->time->toTimeString());
+    $slots = $availablity->map(function (Slots $slots) {
+        return $slots->slots->map(fn (Slot $slot) => $slot->time->toTimeString());
     })
         ->flatten()
         ->toArray();
@@ -110,11 +110,11 @@ it('ignores cancelled appointments', function () {
         ]))
         ->create();
 
-    $availablity = (new ServiceSlotAvailability(collect([$employee]), $service))
+    $availablity = (new ServiceAvailability(collect([$employee]), $service))
         ->forPeriod(now()->startOfDay(), now()->endOfDay());
 
-    $slots = $availablity->map(function (Date $date) {
-        return $date->slots->map(fn (Slot $slot) => $slot->time->toTimeString());
+    $slots = $availablity->map(function (Slots $slots) {
+        return $slots->slots->map(fn (Slot $slot) => $slot->time->toTimeString());
     })
         ->flatten()
         ->toArray();
@@ -141,7 +141,7 @@ it('shows multiple employees available for a service', function () {
         ]))
         ->create();
 
-    $availablity = (new ServiceSlotAvailability($employees, $service))
+    $availablity = (new ServiceAvailability($employees, $service))
         ->forPeriod(now()->startOfDay(), now()->endOfDay());
 
     expect($availablity->first()->slots->first()->employees)->toHaveCount(2);

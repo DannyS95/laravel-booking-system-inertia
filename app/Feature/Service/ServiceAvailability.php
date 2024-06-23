@@ -1,29 +1,36 @@
 <?php
 
-namespace App\Bookings;
+namespace App\Feature\Service;
 
-use App\Models\Appointment;
-use App\Models\Employee;
-use App\Models\Service;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
-use Spatie\Period\Boundaries;
+use App\Models\Service;
+use App\Models\Employee;
 use Spatie\Period\Period;
-use Spatie\Period\PeriodCollection;
+use App\Models\Appointment;
 use Spatie\Period\Precision;
+use App\Feature\Booking\Slot;
+use Spatie\Period\Boundaries;
+use App\Feature\Booking\Slots;
+use Illuminate\Support\Collection;
+use Spatie\Period\PeriodCollection;
+use App\Feature\Booking\SlotRangeGenerator;
+use App\Feature\Collections\SlotCollection;
+use App\Feature\Employee\ScheduleAvailability;
 /**
  * Core class for building out employee schedule availability
  */
-class ServiceSlotAvailability
+final class ServiceAvailability
 {
-    public function __construct(protected Collection $employees, protected Service $service)
+    public function __construct(private Collection $employees, private Service $service)
     {
         //
     }
 
-    public function forPeriod(Carbon $startsAt, Carbon $endsAt)
+    public function forPeriod(Carbon $startsAt, Carbon $endsAt): SlotCollection
     {
-        # Todo: fix mappings
+        /**
+         * @var SlotCollection $slotCollection
+         */
         $range = (new SlotRangeGenerator($startsAt, $endsAt))->generate($this->service->duration);
 
         $this->employees->each(function (Employee $employee) use ($startsAt, $endsAt, &$range) {
@@ -35,8 +42,6 @@ class ServiceSlotAvailability
             foreach ($periods as $period) {
                 $this->addAvailableEmployeeForPeriod($range, $period, $employee);
             }
-
-            // remove appointments from the period collection
         });
 
         $range = $this->removeEmptySlots($range);
@@ -44,7 +49,7 @@ class ServiceSlotAvailability
         return $range;
     }
 
-    protected function removeAppointments(PeriodCollection $period, Employee $employee)
+    private function removeAppointments(PeriodCollection $period, Employee $employee)
     {
         $employee->appointments->whereNull('cancelled_at')->each(function (Appointment $appointment) use (&$period) {
             $period = $period->subtract(
@@ -60,9 +65,9 @@ class ServiceSlotAvailability
         return $period;
     }
 
-    protected function removeEmptySlots(Collection $range)
+    private function removeEmptySlots(Collection $range)
     {
-        return $range->filter(function (Date $date) {
+        return $range->filter(function (Slots $date) {
             $date->slots = $date->slots->filter(function (Slot $slot) {
                 return $slot->hasEmployees();
             });
@@ -71,9 +76,9 @@ class ServiceSlotAvailability
         });
     }
 
-    protected function addAvailableEmployeeForPeriod(Collection $range, Period $period, Employee $employee)
+    private function addAvailableEmployeeForPeriod(Collection $range, Period $period, Employee $employee)
     {
-        $range->each(function (Date $date) use ($period, $employee) {
+        $range->each(function (Slots $date) use ($period, $employee) {
             $date->slots->each(function (Slot $slot) use ($period, $employee) {
                 if ($period->contains($slot->time)) {
                     $slot->addEmployee($employee);

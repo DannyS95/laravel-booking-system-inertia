@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Bookings;
+namespace App\Feature\Booking;
 
 use App\Models\Employee;
 use Carbon\Carbon;

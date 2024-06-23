@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Bookings;
+namespace App\Feature\Booking;
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
-class Date
+class Slots
 {
     public Collection $slots;
 

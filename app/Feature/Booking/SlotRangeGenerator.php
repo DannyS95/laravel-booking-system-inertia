@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Bookings;
+namespace App\Feature\Booking;
 
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use App\Feature\Collections\SlotCollection;
 
 class SlotRangeGenerator
 {
@@ -12,14 +13,14 @@ class SlotRangeGenerator
         //
     }
 
-    public function generate(int $interval)
+    public function generate(int $interval): SlotCollection
     {
-        $collection = new DateCollection();
+        $collection = new SlotCollection();
 
         $days = CarbonPeriod::create($this->startsAt, '1 day', $this->endsAt);
 
         foreach ($days as $day) {
-            $date = new Date($day);
+            $date = new Slots($day);
 
             $times = CarbonPeriod::create($day->startOfDay(), sprintf('%d minutes', $interval), $day->copy()->endOfDay());
 

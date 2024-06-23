@@ -13,7 +13,7 @@ const props = defineProps({
     employee: Object,
     service: Object,
     availability: Array,
-    date: String,
+    start: String,
     calendar: String
 })
 
@@ -53,7 +53,7 @@ const createPicker = () => {
         element: pickerRef.value,
         readonly: true,
         zIndex: 50,
-        date: props.date,
+        date: props.start,
         css: [
             style,
             customStyle
@@ -94,7 +94,7 @@ const setSlots = (date) => {
 onMounted(() => {
     createPicker()
 
-    setSlots(props.date)
+    setSlots(props.start)
 
     picker.on('select', (e) => {
         setSlots(e.detail.date.format('YYYY-MM-DD'))

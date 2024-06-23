@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Bookings\ServiceSlotAvailability;
-use App\Http\Requests\AppointmentStoreRequest;
-use App\Models\Appointment;
-use App\Models\Employee;
-use App\Models\Service;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Models\Service;
+use App\Models\Employee;
+use App\Models\Appointment;
+use App\Feature\Service\ServiceAvailability;
+use App\Http\Requests\AppointmentStoreRequest;
 
 class AppointmentStoreController extends Controller
 {
@@ -17,7 +16,7 @@ class AppointmentStoreController extends Controller
         $employee = Employee::find($request->employee_id);
         $service = Service::find($request->service_id);
 
-        $availability = (new ServiceSlotAvailability(collect([$employee]), $service))
+        $availability = (new ServiceAvailability(collect([$employee]), $service))
             ->forPeriod(
                 Carbon::parse($request->datetime)->startOfDay(),
                 Carbon::parse($request->datetime)->endOfDay(),

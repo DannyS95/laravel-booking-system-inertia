@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Bookings;
+namespace App\Feature\Employee;
 
 use App\Models\Employee;
 use App\Models\ScheduleExclusion;
@@ -12,11 +12,11 @@ use Spatie\Period\Period;
 use Spatie\Period\PeriodCollection;
 use Spatie\Period\Precision;
 
-class ScheduleAvailability
+final class ScheduleAvailability
 {
-    protected PeriodCollection $periods;
+    private PeriodCollection $periods;
 
-    public function __construct(protected Employee $employee, protected Service $service)
+    public function __construct(private Employee $employee, private Service $service)
     {
         $this->periods = new PeriodCollection();
     }
@@ -37,7 +37,7 @@ class ScheduleAvailability
         return $this->periods;
     }
 
-    protected function excludeTimePassedToday()
+    private function excludeTimePassedToday()
     {
         $this->periods = $this->periods->subtract(
             Period::make(
@@ -49,7 +49,7 @@ class ScheduleAvailability
         );
     }
 
-    protected function subtractScheduleExclusion(ScheduleExclusion $exclusion)
+    private function subtractScheduleExclusion(ScheduleExclusion $exclusion)
     {
         $this->periods = $this->periods->subtract(
             Period::make(
@@ -61,7 +61,7 @@ class ScheduleAvailability
         );
     }
 
-    protected function addAvailabilityFromSchedule(Carbon $date)
+    private function addAvailabilityFromSchedule(Carbon $date)
     {
         if ($date->lte(now()->subDay())) {
             return;

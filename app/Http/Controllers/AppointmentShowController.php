@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
-use Illuminate\Http\Request;
 
 class AppointmentShowController extends Controller
 {
