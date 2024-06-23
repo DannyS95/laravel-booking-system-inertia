@@ -21,7 +21,7 @@ final class ScheduleAvailability
         $this->periods = new PeriodCollection();
     }
 
-    public function forPeriod(Carbon $startsAt, Carbon $endsAt)
+    public function forPeriod(Carbon $startsAt, Carbon $endsAt): PeriodCollection
     {
         collect(CarbonPeriod::create($startsAt, $endsAt)->days())
             ->each(function ($date) {
