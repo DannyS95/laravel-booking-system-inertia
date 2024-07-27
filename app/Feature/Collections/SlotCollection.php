@@ -14,7 +14,7 @@ class SlotCollection extends Collection
         });
     }
 
-    public function hasSlots()
+    public function availableSlots(): Collection
     {
         return $this->filter(function (Slots $date) {
             return !$date->slots->isEmpty();

@@ -8,6 +8,9 @@ CONTAINER_NAME := booking-system
 php-artisan:
 	$(DOCKER_EXEC) $(CONTAINER_NAME) sh -c 'php artisan $(command)'
 
+migrate:
+	$(DOCKER_EXEC) $(CONTAINER_NAME) sh -c 'php artisan migrate --seed'
+
 composer-i:
 	$(DOCKER_EXEC) $(CONTAINER_NAME) sh -c 'composer install --no-interaction'
 

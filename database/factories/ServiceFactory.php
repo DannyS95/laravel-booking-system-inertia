@@ -19,7 +19,8 @@ class ServiceFactory extends Factory
         return [
             'title' => $title = 'Hair',
             'slug' => str()->slug($title),
-            'price' => 2000
+            'price' => 2000,
+            'duration' => 30,
         ];
     }
 }

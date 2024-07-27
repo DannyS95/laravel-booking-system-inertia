@@ -4,7 +4,7 @@ import { ref, onMounted, watch } from 'vue'
 import { easepick, LockPlugin, DateTime } from '@easepick/bundle'
 import style from '@easepick/bundle/dist/index.css?url'
 import customStyle from '../../../resources/css/vendor/easepick.css?url'
-import { router, useForm } from '@inertiajs/vue3'
+import { router, useForm, Link } from '@inertiajs/vue3'
 import pluralize from 'pluralize'
 
 defineOptions({ layout: BaseLayout })
@@ -73,9 +73,16 @@ const createPicker = () => {
                 const dateString = date ? date.format('YYYY-MM-DD') : null
 
                 const availability = props.availability.find(a => a.date === dateString)
-
+                // when setting up the days, check availability and add slot count
                 if (view === 'CalendarDay' && availability) {
-                    const span = target.querySelector('.day-slots') || document.createElement('span')
+                    let span = null
+                    if (!target.querySelector('.day-slots')) {
+                        span = document.createElement('span')
+                        span.className = 'day-slots'
+                        span.innerHTML = pluralize('slot', Object.keys(availability.slots).length, true)
+                    } else {
+                        span = target.querySelector('.day-slots')
+                    }
 
                     span.className = 'day-slots'
                     span.innerHTML = pluralize('slot', Object.keys(availability.slots).length, true)
@@ -101,10 +108,14 @@ onMounted(() => {
     })
 
     picker.on('render', (e) => {
+        // e.g everytime we choose a following month
+        // only re-render if the current date we have in the calendar is different from the date being passed within the query string
         if (e.detail.view === 'Container' && e.detail.date.format('YYYY-MM-DD').toString() !== props.calendar) {
+            // inertia page reload with updated props
             router.reload({
                 data: { calendar: e.detail.date.format('YYYY-MM-DD') },
                 only: ['availability', 'calendar', 'date'],
+                // re-render date picker with different props
                 onSuccess: () => {
                     picker.renderAll()
                 }
@@ -118,6 +129,7 @@ onMounted(() => {
     <form class="space-y-10" v-on:submit.prevent="submit">
         <div>
             <h2 class="text-xl font-medium">Here's what you're booking</h2>
+            <Link :href="route('home')" class="text-xs text-blue-500">&larr; Go back</Link>
             <div class="mt-6 flex space-x-3 bg-slate-100 rounded-lg p-4">
                 <img v-if="employee" :src="employee.profile_photo_url" class="rounded-lg size-14">
                 <div v-else class="rounded-lg size-14 bg-slate-200"></div>

@@ -15,19 +15,17 @@ class CheckoutController extends Controller
 {
     public function __invoke(Service $service, Employee $employee, Request $request)
     {
-        $employeeAvailability = (new ServiceAvailability($employee->exists ? collect([$employee]) : Employee::get(), $service))
+        $availability = (new ServiceAvailability($employee->exists ? collect([$employee]) : Employee::get(), $service))
             ->forPeriod(
                 Carbon::createFromDate($request->calendar)->startOfDay(),
                 Carbon::createFromDate($request->calendar)->endOfMonth(),
             );
 
-        $availableDates = $employeeAvailability->hasSlots();
-
         return inertia()->render('Checkout', [
             'employee' => $employee->exists ? EmployeeResource::make($employee) : null,
-            'employeeAvailability' => AvailabilityResource::collection($availableDates),
+            'availability' => AvailabilityResource::collection($availability->availableSlots()),
             'service' => ServiceResource::make($service),
-            'start' => $employeeAvailability->firstAvailableDate()?->date->toDateString(),
+            'start' => $availability->firstAvailableDate()?->date->toDateString(),
             'calendar' => $request->calendar
         ]);
     }

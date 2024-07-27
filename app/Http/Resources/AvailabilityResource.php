@@ -2,8 +2,8 @@
 
 namespace App\Http\Resources;
 
-use App\Bookings\Slot;
 use Illuminate\Http\Request;
+use App\Feature\Booking\Slot;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AvailabilityResource extends JsonResource

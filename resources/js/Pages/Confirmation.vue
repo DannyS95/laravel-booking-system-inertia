@@ -1,6 +1,6 @@
 <script setup>
 import BaseLayout from '@/Layouts/BaseLayout.vue'
-import { router } from '@inertiajs/vue3'
+import { router, Link } from '@inertiajs/vue3'
 
 defineOptions({ layout: BaseLayout })
 
@@ -20,6 +20,7 @@ const cancel = () => {
 <template>
     <div class="space-y-12">
         <div>
+            <Link :href="route('home')" class="text-xs text-blue-500">&larr; Go back</Link>
             <h2 class="text-xl font-medium">{{ appointment.cancelled ? 'Cancelled' : `Thanks, you're booked in!` }}</h2>
             <div class="mt-6 flex space-x-3 bg-slate-100 rounded-lg p-4">
                 <img :src="appointment.employee.profile_photo_url" class="rounded-lg size-14">
